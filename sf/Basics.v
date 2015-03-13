@@ -432,6 +432,41 @@ Fixpoint plus (n : nat) (m : nat) : nat :=
 
 (** Adding three to two now gives us five, as we'd expect. *)
 
+Lemma add_assoc_0:
+  forall ( m k : nat), plus 0 (plus m k ) = plus (plus 0 m ) k.
+Proof.
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma add_assoc_n_Sn:
+  forall n: nat,
+  (forall m k : nat, plus n (plus m k) = plus (plus n m) k) ->
+  (forall m k : nat, plus (S n) (plus m k) = plus (plus (S n) m) k).
+Proof.
+  intros n.
+  intros Hn.
+  intros m'.
+  intros k'.
+
+  simpl plus at 1.
+  simpl plus at 4.
+  simpl plus at 3.
+
+  (* specialize (Hn m' k').*)
+  rewrite Hn.
+  reflexivity.
+Qed.
+
+Lemma add_assoc: forall (n m k : nat),
+  plus n (plus m k) = plus (plus n m ) k.
+Proof.
+  induction n.
+  - apply add_assoc_0.
+  - revert n IHn. apply add_assoc_n_Sn.
+Qed.
+
+
 Eval compute in (plus (S (S (S O))) (S (S O))).
 
 (** The simplification that Coq performs to reach this conclusion can
