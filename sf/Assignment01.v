@@ -28,10 +28,10 @@ Example test_andb34:                 (andb3 true true false) = false.
 (** **** Exercise: 1 star (factorial) *)
 (** Recall the standard factorial function:
 <<
-    factorial(0)  =  1 
+    factorial(0)  =  1
     factorial(n)  =  n * factorial(n-1)     (if n>0)
 >>
-    Translate this into Coq. 
+    Translate this into Coq.
 
     Note that plus and multiplication are already defined in Coq.
     use "+" for plus and "*" for multiplication.
@@ -40,7 +40,7 @@ Example test_andb34:                 (andb3 true true false) = false.
 Eval compute in 3 * 5.
 Eval compute in 3+5*6.
 
-Fixpoint factorial (n:nat) : nat := 
+Fixpoint factorial (n:nat) : nat :=
 (* FILL IN HERE *) admit.
 
 Example test_factorial1:          (factorial 3) = 6.
@@ -54,8 +54,8 @@ Example test_factorial2:          (factorial 5) = 10 * 12.
 (** **** Exercise: 2 stars (blt_nat) *)
 (** The [blt_nat] function tests [nat]ural numbers for [l]ess-[t]han,
     yielding a [b]oolean.  Instead of making up a new [Fixpoint] for
-    this one, define it in terms of a previously defined function.  
-    
+    this one, define it in terms of a previously defined function.
+
     Note: If you have trouble with the [simpl] tactic, try using
     [compute], which is like [simpl] on steroids.  However, there is a
     simple, elegant solution for which [simpl] suffices. *)
