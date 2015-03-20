@@ -755,7 +755,11 @@ Proof.
 Theorem plus_id_exercise : forall n m o : nat,
   n = m -> m = o -> n + m = m + o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m o H H0.
+  rewrite -> H.
+  rewrite -> H0.
+  reflexivity.
+Qed.
 (** [] *)
 
 (** As we've seen in earlier examples, the [Admitted] command
@@ -785,7 +789,11 @@ Theorem mult_S_1 : forall n m : nat,
   m = S n ->
   m * (1 + n) = m * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  rewrite -> plus_1_l.
+  rewrite -> H.
+  reflexivity.
+Qed.
 (** [] *)
 
 
@@ -870,7 +878,9 @@ Proof.
 Theorem zero_nbeq_plus_1 : forall n : nat,
   beq_nat 0 (n + 1) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. destruct n.
+    reflexivity.
+    reflexivity. Qed.
 
 (** [] *)
 
@@ -886,7 +896,11 @@ Theorem identity_fn_applied_twice :
   (forall (x : bool), f x = x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  rewrite -> H.
+  rewrite -> H.
+  reflexivity.
+Qed.
 
 (** Now state and prove a theorem [negation_fn_applied_twice] similar
     to the previous one but where the second hypothesis says that the
@@ -899,12 +913,24 @@ Proof.
 (** Prove the following theorem.  (You may want to first prove a
     subsidiary lemma or two. Alternatively, remember that you do
     not have to introduce all hypotheses at the same time.) *)
+Theorem a :
+  forall (b c : bool),
+  (b = c) -> (andb b c = orb b c).
+Proof.
+  intros.
+  rewrite -> H.
+  destruct c.
+    - reflexivity.
+    - reflexivity.
+Qed.
 
 Theorem andb_eq_orb :
   forall (b c : bool),
   (andb b c = orb b c) ->
   b = c.
 Proof.
+  intros.
+
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
