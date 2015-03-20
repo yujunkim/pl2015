@@ -1,9 +1,10 @@
 (** **** Problem #1 : 2 stars (mult_S_1) *)
 Theorem mult_S_1 : forall n m : nat,
-  m = S n -> 
+  m = S n ->
   m * (1 + n) = m * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. rewrite -> H. reflexivity.
+Qed.
 (** [] *)
 
 
@@ -27,7 +28,10 @@ Fixpoint beq_nat (n m : nat) : bool :=
 Theorem zero_nbeq_plus_1 : forall n : nat,
   beq_nat 0 (n + 1) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. destruct n as [| n].
+  - reflexivity.
+  - reflexivity.
+Qed.
 (** [] *)
 
 
@@ -37,15 +41,18 @@ Proof.
 
 
 (** **** Problem #3 : 2 stars (boolean functions) *)
-(** Use the tactics you have learned so far to prove the following 
+(** Use the tactics you have learned so far to prove the following
     theorem about boolean functions. *)
 
-Theorem negation_fn_applied_twice : 
-  forall (f : bool -> bool), 
+Theorem negation_fn_applied_twice :
+  forall (f : bool -> bool),
   (forall (x : bool), f x = negb x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. rewrite H. rewrite H. destruct b as [| n].
+  - reflexivity.
+  - reflexivity.
+Qed.
 
 
 
@@ -58,12 +65,16 @@ Proof.
     subsidiary lemma or two. Alternatively, remember that you do
     not have to introduce all hypotheses at the same time.) *)
 
-Theorem andb_eq_orb : 
+Theorem andb_eq_orb :
   forall (b c : bool),
   (andb b c = orb b c) ->
   b = c.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c.
+  destruct b.
+  - simpl. intros. rewrite H. reflexivity.
+  - simpl. intros. rewrite H. reflexivity.
+Qed.
 
 
 
@@ -77,23 +88,34 @@ Proof.
 
 Theorem plus_n_O : forall n : nat,
   n = n + 0.
-Proof. 
-  (* FILL IN HERE *) Admitted.
+Proof.
+  intros. symmetry. induction n.
+  - reflexivity.
+  - simpl. rewrite -> IHn. reflexivity.  Qed.
 
-Theorem plus_n_Sm : forall n m : nat, 
+Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).
-Proof. 
-  (* FILL IN HERE *) Admitted.
+Proof.
+  intros. induction n.
+  - reflexivity.
+  - simpl. rewrite -> IHn. reflexivity.
+Qed.
 
 Theorem plus_comm : forall n m : nat,
   n + m = m + n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction n.
+  - simpl. symmetry. rewrite -> plus_n_O. reflexivity.
+  - simpl. rewrite -> IHn. rewrite -> plus_n_Sm. reflexivity.
+Qed.
 
 Theorem plus_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction n.
+  - reflexivity.
+  - simpl. rewrite -> IHn. reflexivity.
+Qed.
 (** [] *)
 
 
@@ -114,8 +136,11 @@ Fixpoint double (n:nat) :=
 (** Use induction to prove this simple fact about [double]: *)
 
 Lemma double_plus : forall n, double n = n + n .
-Proof.  
-  (* FILL IN HERE *) Admitted.
+Proof.
+  induction n.
+  - reflexivity.
+  - simpl. rewrite -> IHn. symmetry. rewrite -> plus_comm. simpl. reflexivity.
+Qed.
 (** [] *)
 
 
@@ -126,13 +151,22 @@ Proof.
 
 
 (** **** Problem #7 : 4 stars (mult_comm) *)
-(** Use [assert] to help prove this theorem if necessary.  
+(** Use [assert] to help prove this theorem if necessary.
     You shouldn't need to use induction. *)
 
-Theorem plus_swap : forall n m p : nat, 
+Theorem plus_swap : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  assert(H: m + p = p + m).
+  - rewrite -> plus_comm. reflexivity.
+  - rewrite -> H.
+    rewrite -> plus_assoc.
+    rewrite -> plus_assoc.
+    rewrite -> plus_comm.
+    rewrite -> plus_assoc.
+    reflexivity.
+Qed.
 
 
 
@@ -146,12 +180,20 @@ Proof.
 Theorem mult_plus_distr_r : forall n m p : nat,
   (n + m) * p = (n * p) + (m * p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  induction n.
+  - simpl. reflexivity.
+  - simpl. rewrite IHn. rewrite -> plus_assoc. reflexivity.
+Qed.
 
 Theorem mult_assoc : forall n m p : nat,
   n * (m * p) = (n * m) * p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  induction n.
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHn. rewrite -> mult_plus_distr_r. reflexivity.
+Qed.
 (** [] *)
 
 
@@ -166,18 +208,18 @@ Inductive natprod : Type :=
 
 Notation "( x , y )" := (pair x y).
 
-Definition fst := 
+Definition fst :=
   fun (p : natprod) =>
   match p with
   | (x, y) => x
   end.
 
-Definition snd (p : natprod) : nat := 
+Definition snd (p : natprod) : nat :=
   match p with
   | (x, y) => y
   end.
 
-Definition swap_pair (p : natprod) : natprod := 
+Definition swap_pair (p : natprod) : natprod :=
   match p with
   | (x,y) => (y,x)
   end.
@@ -191,7 +233,10 @@ Definition swap_pair (p : natprod) : natprod :=
 Theorem snd_fst_is_swap : forall (p : natprod),
   (snd p, fst p) = swap_pair p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  destruct p as [n m].
+  - simpl. reflexivity.
+Qed.
 (** [] *)
 
 
@@ -204,7 +249,10 @@ Proof.
 Theorem fst_swap_is_snd : forall (p : natprod),
   fst (swap_pair p) = snd p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  destruct p as [n m].
+  - simpl. reflexivity.
+Qed.
 (** [] *)
 
 
