@@ -1,6 +1,6 @@
 (** * Logic: Logic in Coq *)
 
-Require Export MoreCoq. 
+Require Export MoreCoq.
 
 
 
@@ -23,12 +23,12 @@ Require Export MoreCoq.
     claims (_propositions_) and ways of presenting evidence of their
     truth (_proofs_).  In particular, we have worked extensively with
     _equality propositions_ of the form [e1 = e2], with
-    implications ([P -> Q]), and with quantified propositions 
-    ([forall x, P]).  
+    implications ([P -> Q]), and with quantified propositions
+    ([forall x, P]).
 *)
 
 
-(** In Coq, the type of things that can (potentially) 
+(** In Coq, the type of things that can (potentially)
     be proven is [Prop]. *)
 
 (** Here is an example of a provable proposition: *)
@@ -41,7 +41,7 @@ Check (3 = 3).
 Check (forall (n:nat), n = 2).
 (* ===> Prop *)
 
-(** Recall that [Check] asks Coq to tell us the type of the indicated 
+(** Recall that [Check] asks Coq to tell us the type of the indicated
   expression. *)
 
 (* ########################################################### *)
@@ -51,11 +51,11 @@ Check (forall (n:nat), n = 2).
     [nat].  Just as the natural numbers [0], [1], [2], etc. inhabit
     the type [nat], a Coq proposition [P] is inhabited by its
     _proofs_.  We will refer to such inhabitants as _proof term_ or
-    _proof object_ or _evidence_ for the truth of [P]. 
+    _proof object_ or _evidence_ for the truth of [P].
 
     In Coq, when we state and then prove a lemma such as:
 
-Lemma silly : 0 * 3 = 0.  
+Lemma silly : 0 * 3 = 0.
 Proof. reflexivity. Qed.
 
     the tactics we use within the [Proof]...[Qed] keywords tell Coq
@@ -88,13 +88,13 @@ equality later!)*)
 function:
 
 [
-mult : nat -> nat -> nat 
+mult : nat -> nat -> nat
 ]
 
 The _proof term_ for an implication [P -> Q] is a _function_ that
 takes evidence for [P] as input and produces evidence for [Q] as its
 output.
-*)     
+*)
 
 Lemma silly_implication : (1 + 1) = 2  ->  0 * 3 = 0.
 Proof. intros H. reflexivity. Qed.
@@ -112,7 +112,7 @@ Print silly_implication.
     lists, binary representations of natural numbers, etc., that we
     seen before), we can also create _user-defined_ propositions.
 
-    Question: How do you define the meaning of a proposition?  
+    Question: How do you define the meaning of a proposition?
 *)
 
 (** *** *)
@@ -139,7 +139,7 @@ Print silly_implication.
     constructor. *)
 
 Inductive and (P Q : Prop) : Prop :=
-  conj : P -> Q -> (and P Q). 
+  conj : P -> Q -> (and P Q).
 
 (** The intuition behind this definition is simple: to
     construct evidence for [and P Q], we must provide evidence
@@ -151,7 +151,7 @@ Inductive and (P Q : Prop) : Prop :=
     - this is the _only_ way to give evidence for [and P Q] --
       that is, if someone gives us evidence for [and P Q], we
       know it must have the form [conj p q], where [p] is
-      evidence for [P] and [q] is evidence for [Q]. 
+      evidence for [P] and [q] is evidence for [Q].
 
    Since we'll be using conjunction a lot, let's introduce a more
    familiar-looking infix notation for it. *)
@@ -180,7 +180,7 @@ Check conj.
     solves the current goal and leaves the two parts of the
     conjunction as subgoals to be proved separately. *)
 
-Theorem and_example : 
+Theorem and_example :
   (0 = 0) /\ (4 = mult 2 2).
 Proof.
   apply conj.
@@ -190,7 +190,7 @@ Proof.
 (** Just for convenience, we can use the tactic [split] as a shorthand for
     [apply conj]. *)
 
-Theorem and_example' : 
+Theorem and_example' :
   (0 = 0) /\ (4 = mult 2 2).
 Proof.
   split.
@@ -203,37 +203,37 @@ Proof.
     must have been used to build it, and add variables representing
     this evidence to the proof context. *)
 
-Theorem proj1 : forall P Q : Prop, 
+Theorem proj1 : forall P Q : Prop,
   P /\ Q -> P.
 Proof.
   intros P Q H.
-  destruct H as [HP HQ]. 
+  destruct H as [HP HQ].
   apply HP.  Qed.
 
 (** **** Exercise: 1 star, optional (proj2)  *)
-Theorem proj2 : forall P Q : Prop, 
+Theorem proj2 : forall P Q : Prop,
   P /\ Q -> Q.
 Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
-Theorem and_commut : forall P Q : Prop, 
+Theorem and_commut : forall P Q : Prop,
   P /\ Q -> Q /\ P.
 Proof.
   (* WORKED IN CLASS *)
   intros P Q H.
-  destruct H as [HP HQ]. 
-  split.  
-    Case "left". apply HQ. 
+  destruct H as [HP HQ].
+  split.
+    Case "left". apply HQ.
     Case "right". apply HP.  Qed.
-  
+
 
 (** **** Exercise: 2 stars (and_assoc)  *)
 (** In the following proof, notice how the _nested pattern_ in the
     [destruct] breaks the hypothesis [H : P /\ (Q /\ R)] down into
     [HP: P], [HQ : Q], and [HR : R].  Finish the proof from there: *)
 
-Theorem and_assoc : forall P Q R : Prop, 
+Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
 Proof.
   intros P Q R H.
@@ -251,21 +251,21 @@ Proof.
 
 Definition iff (P Q : Prop) := (P -> Q) /\ (Q -> P).
 
-Notation "P <-> Q" := (iff P Q) 
-                      (at level 95, no associativity) 
+Notation "P <-> Q" := (iff P Q)
+                      (at level 95, no associativity)
                       : type_scope.
 
-Theorem iff_implies : forall P Q : Prop, 
+Theorem iff_implies : forall P Q : Prop,
   (P <-> Q) -> P -> Q.
-Proof.  
-  intros P Q H. 
+Proof.
+  intros P Q H.
   destruct H as [HAB HBA]. apply HAB.  Qed.
 
-Theorem iff_sym : forall P Q : Prop, 
+Theorem iff_sym : forall P Q : Prop,
   (P <-> Q) -> (Q <-> P).
 Proof.
   (* WORKED IN CLASS *)
-  intros P Q H. 
+  intros P Q H.
   destruct H as [HAB HBA].
   split.
     Case "->". apply HBA.
@@ -275,12 +275,12 @@ Proof.
 (** Using the above proof that [<->] is symmetric ([iff_sym]) as
     a guide, prove that it is also reflexive and transitive. *)
 
-Theorem iff_refl : forall P : Prop, 
+Theorem iff_refl : forall P : Prop,
   P <-> P.
-Proof. 
+Proof.
   (* FILL IN HERE *) Admitted.
 
-Theorem iff_trans : forall P Q R : Prop, 
+Theorem iff_trans : forall P Q R : Prop,
   (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
   (* FILL IN HERE *) Admitted.
@@ -307,7 +307,7 @@ Proof.
 
 Inductive or (P Q : Prop) : Prop :=
   | or_introl : P -> or P Q
-  | or_intror : Q -> or P Q. 
+  | or_intror : Q -> or P Q.
 
 Notation "P \/ Q" := (or P Q) : type_scope.
 
@@ -364,8 +364,8 @@ Proof.
 
 Theorem or_distributes_over_and_1 : forall P Q R : Prop,
   P \/ (Q /\ R) -> (P \/ Q) /\ (P \/ R).
-Proof. 
-  intros P Q R. intros H. destruct H as [HP | [HQ HR]]. 
+Proof.
+  intros P Q R. intros H. destruct H as [HP | [HQ HR]].
     Case "left". split.
       SCase "left". left. apply HP.
       SCase "right". left. apply HP.
@@ -421,7 +421,7 @@ Proof.
 (** **** Exercise: 2 stars, optional (andb_false)  *)
 Theorem andb_false : forall b c,
   andb b c = false -> b = false \/ c = false.
-Proof. 
+Proof.
   (* FILL IN HERE *) Admitted.
 
 (** **** Exercise: 2 stars, optional (orb_false)  *)
@@ -433,7 +433,7 @@ Proof.
 (** **** Exercise: 2 stars, optional (orb_false_elim)  *)
 Theorem orb_false_elim : forall b c,
   orb b c = false -> b = false /\ c = false.
-Proof. 
+Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -445,7 +445,7 @@ Proof.
 (** Logical falsehood can be represented in Coq as an inductively
     defined proposition with no constructors. *)
 
-Inductive False : Prop := . 
+Inductive False : Prop := .
 
 (** Intuition: [False] is a proposition for which there is no way
     to give evidence. *)
@@ -457,9 +457,9 @@ Inductive False : Prop := .
 
 Theorem False_implies_nonsense :
   False -> 2 + 2 = 5.
-Proof. 
+Proof.
   intros contra.
-  inversion contra.  Qed. 
+  inversion contra.  Qed.
 
 (** How does this work? The [inversion] tactic breaks [contra] into
     each of its possible cases, and yields a subgoal for each case.
@@ -511,7 +511,7 @@ Proof.
     used fairly rarely. By itself, it is trivial (and therefore
     uninteresting) to prove as a goal, and it carries no useful
     information as a hypothesis. But it can be useful when defining
-    complex [Prop]s using conditionals, or as a parameter to 
+    complex [Prop]s using conditionals, or as a parameter to
     higher-order [Prop]s. *)
 
 (* #################################################### *)
@@ -537,7 +537,7 @@ Check not.
     proofs of a few familiar facts about negation to get you warmed
     up. *)
 
-Theorem not_False : 
+Theorem not_False :
   ~ False.
 Proof.
   unfold not. intros H. inversion H.  Qed.
@@ -545,9 +545,9 @@ Proof.
 (** *** *)
 Theorem contradiction_implies_anything : forall P Q : Prop,
   (P /\ ~P) -> Q.
-Proof. 
+Proof.
   (* WORKED IN CLASS *)
-  intros P Q H. destruct H as [HP HNA]. unfold not in HNA. 
+  intros P Q H. destruct H as [HP HNA]. unfold not in HNA.
   apply HNA in HP. inversion HP.  Qed.
 
 Theorem double_neg : forall P : Prop,
@@ -576,7 +576,7 @@ Proof.
 (** **** Exercise: 1 star (not_both_true_and_false)  *)
 Theorem not_both_true_and_false : forall P : Prop,
   ~ (P /\ ~P).
-Proof. 
+Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -596,9 +596,9 @@ Theorem classic_double_neg : forall P : Prop,
   ~~P -> P.
 Proof.
   (* WORKED IN CLASS *)
-  intros P H. unfold not in H. 
-  (* But now what? There is no way to "invent" evidence for [~P] 
-     from evidence for [P]. *) 
+  intros P H. unfold not in H.
+  (* But now what? There is no way to "invent" evidence for [~P]
+     from evidence for [P]. *)
   Abort.
 
 (** **** Exercise: 5 stars, advanced, optional (classical_axioms)  *)
@@ -611,16 +611,16 @@ Proof.
     if we wish to work in classical logic.  Prove that these five
     propositions are equivalent. *)
 
-Definition peirce := forall P Q: Prop, 
+Definition peirce := forall P Q: Prop,
   ((P->Q)->P)->P.
-Definition classic := forall P:Prop, 
+Definition classic := forall P:Prop,
   ~~P -> P.
-Definition excluded_middle := forall P:Prop, 
+Definition excluded_middle := forall P:Prop,
   P \/ ~P.
-Definition de_morgan_not_and_not := forall P Q:Prop, 
+Definition de_morgan_not_and_not := forall P Q:Prop,
   ~(~P /\ ~Q) -> P\/Q.
-Definition implies_to_or := forall P Q:Prop, 
-  (P->Q) -> (~P\/Q). 
+Definition implies_to_or := forall P Q:Prop,
+  (P->Q) -> (~P\/Q).
 
 (* FILL IN HERE *)
 (** [] *)
@@ -631,7 +631,7 @@ axiom (i.e. an instance of excluded middle) for any _particular_ Prop [P].
 Why? Because we cannot prove the negation of such an axiom; if we could,
 we would have both [~ (P \/ ~P)] and [~ ~ (P \/ ~P)], a contradiction. *)
 
-Theorem excluded_middle_irrefutable:  forall (P:Prop), ~ ~ (P \/ ~ P).  
+Theorem excluded_middle_irrefutable:  forall (P:Prop), ~ ~ (P \/ ~ P).
 Proof.
   (* FILL IN HERE *) Admitted.
 
@@ -658,7 +658,7 @@ Proof.
   intros b H. destruct b.
   Case "b = true". reflexivity.
   Case "b = false".
-    unfold not in H.  
+    unfold not in H.
     apply ex_falso_quodlibet.
     apply H. reflexivity.   Qed.
 
@@ -677,7 +677,7 @@ Proof.
 Theorem false_beq_nat : forall n m : nat,
      n <> m ->
      beq_nat n m = false.
-Proof. 
+Proof.
   (* FILL IN HERE *) Admitted.
 (** [] *)
 
