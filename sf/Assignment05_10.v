@@ -8,8 +8,9 @@ Require Export Assignment05_09.
 (** 1 star (not_both_true_and_false)  *)
 Theorem not_both_true_and_false : forall P : Prop,
   ~ (P /\ ~P).
-Proof. 
-  (* FILL IN HERE *) admit.
+Proof.
+  intros.
+  unfold not. intros. destruct H. apply H0. apply H.
 Qed.
 (** [] *)
 

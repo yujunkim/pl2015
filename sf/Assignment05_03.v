@@ -12,11 +12,12 @@ Require Export Assignment05_02.
     about why this works.) *)
 
 
-Theorem iff_refl : forall P : Prop, 
+Theorem iff_refl : forall P : Prop,
   P <-> P.
-Proof. 
-  (* FILL IN HERE *) admit.
+Proof.
+  intros. unfold iff. split.
+  - intros. apply H.
+  - intros. apply H.
 Qed.
-
 
 
