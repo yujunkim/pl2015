@@ -10,20 +10,40 @@ Inductive appears_in {X:Type} (a:X) : list X -> Prop :=
   | ai_later : forall b l, appears_in a l -> appears_in a (b::l).
 
 (** ...gives us a precise way of saying that a value [a] appears at
-    least once as a member of a list [l]. 
+    least once as a member of a list [l].
 
     Here's a pair of warm-ups about [appears_in].
 *)
 
-Lemma appears_in_app : forall (X:Type) (xs ys : list X) (x:X), 
-     appears_in x (xs ++ ys) -> appears_in x xs \/ appears_in x ys.
+Theorem app_nil_end : forall (X: Type) (l : list X),
+  l ++ [] = l.
 Proof.
-  (* FILL IN HERE *) admit.
+  induction l.
+  - reflexivity.
+  - simpl. rewrite IHl. reflexivity.
 Qed.
 
-Lemma app_appears_in : forall (X:Type) (xs ys : list X) (x:X), 
+Lemma appears_in_app : forall (X:Type) (xs ys : list X) (x:X),
+     appears_in x (xs ++ ys) -> appears_in x xs \/ appears_in x ys.
+Proof.
+  intros.
+  induction xs.
+  - intros. simpl in H. right. apply H.
+  - inversion H.
+    + left. apply ai_here.
+    + apply IHxs in H1. destruct H1. left. apply ai_later. apply H1. right. apply H1.
+Qed.
+
+Lemma app_appears_in : forall (X:Type) (xs ys : list X) (x:X),
      appears_in x xs \/ appears_in x ys -> appears_in x (xs ++ ys).
 Proof.
-  (* FILL IN HERE *) admit.
+  intros.
+  destruct H.
+  - induction xs.
+    + inversion H.
+    + inversion H. simpl. apply ai_here. simpl. apply ai_later. apply IHxs. apply H1.
+  - induction xs.
+    + simpl. apply H.
+    + simpl. apply ai_later. apply IHxs.
 Qed.
 

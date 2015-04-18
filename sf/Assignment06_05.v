@@ -8,6 +8,8 @@ Require Export Assignment06_04.
     asserts that [P] is true for every element of the list [l]. *)
 
 Inductive all {X : Type} (P : X -> Prop) : list X -> Prop :=
+  | all_nil : all P []
+  | all_later : forall b l, (all P l /\ P b) -> all P (b::l)
   (* FILL IN HERE *)
 .
 
@@ -21,7 +23,7 @@ Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
   end.
 
 (** Using the property [all], write down a specification for [forallb],
-    and prove that it satisfies the specification. Try to make your 
+    and prove that it satisfies the specification. Try to make your
     specification as precise as possible.
 
     Are there any important properties of the function [forallb] which
@@ -30,7 +32,19 @@ Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
 Theorem forallb_correct: forall X (P: X -> bool) l,
   forallb P l = true <-> all (fun x => P x = true) l.
 Proof.
-  (* FILL IN HERE *) admit.
+  intros.
+  unfold iff.
+  split.
+  - induction l.
+    + simpl. intros. apply all_nil.
+    + simpl. unfold andb. intros. destruct (P x) eqn:nn.
+      apply all_later. split. apply IHl. apply H. apply nn.
+      inversion H.
+  - intros. induction l.
+    + simpl. intros. reflexivity.
+    + simpl. intros. destruct (P x) eqn:nn.
+      unfold andb. apply IHl. inversion H. inversion H1. apply H3.
+      inversion H. rewrite nn in H1. inversion H1. inversion H4.
 Qed.
 
 (** [] *)
