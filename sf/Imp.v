@@ -526,13 +526,25 @@ Proof.
     as elegant as possible. *)
 
 Fixpoint optimize_0plus_b (b : bexp) : bexp :=
-  (* FILL IN HERE *) admit.
+  match b with
+  | BTrue       => BTrue
+  | BFalse      => BFalse
+  | BEq a1 a2   => BEq (optimize_0plus a1) (optimize_0plus a2)
+  | BLe a1 a2   => BLe (optimize_0plus a1) (optimize_0plus a2)
+  | BNot b1     => BNot (optimize_0plus_b b1)
+  | BAnd b1 b2  => BAnd (optimize_0plus_b b1) (optimize_0plus_b b2)
+  end.
 
 
 Theorem optimize_0plus_b_sound : forall b,
   beval (optimize_0plus_b b) = beval b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction b;
+    try(simpl; reflexivity);
+    try(simpl; rewrite optimize_0plus_sound; rewrite optimize_0plus_sound; reflexivity);
+    try(simpl; rewrite IHb; reflexivity);
+    try(simpl; rewrite IHb1; rewrite IHb2; reflexivity).
+Qed.
 (** [] *)
 
 (** **** Exercise: 4 stars, optional (optimizer)  *)
@@ -783,7 +795,7 @@ Proof.
 Qed.
 
 (** Note: if you're reading the HTML file, you'll see an empty square box instead
-of a proof for this theorem.  
+of a proof for this theorem.
 You can click on this box to "unfold" the text to see the proof.
 Click on the unfolded to text to "fold" it back up to a box. We'll be using
 this style frequently from now on to help keep the HTML easier to read.
@@ -809,10 +821,49 @@ Qed.
 (** Write a relation [bevalR] in the same style as
     [aevalR], and prove that it is equivalent to [beval].*)
 
-(* 
-Inductive bevalR:
+Inductive bevalR: bexp -> bool -> Prop :=
+  | E_BTrue : bevalR BTrue true
+  | E_BFalse : bevalR BFalse false
+  | E_BEq : forall (e1 e2: aexp) (n1 n2 : nat),
+      aevalR e1 n1 ->
+      aevalR e2 n2 ->
+      bevalR (BEq e1 e2) (beq_nat n1 n2)
+  | E_BLe : forall (e1 e2: aexp) (n1 n2 : nat),
+      aevalR e1 n1 ->
+      aevalR e2 n2 ->
+      bevalR (BLe e1 e2) (ble_nat n1 n2)
+  | E_BNot : forall (e1: bexp) (b1 : bool),
+      bevalR e1 b1 ->
+      bevalR (BNot e1) (negb b1)
+  | E_BAnd : forall (e1 e2: bexp) (b1 b2 : bool),
+      bevalR e1 b1 ->
+      bevalR e2 b2 ->
+      bevalR (BAnd e1 e2) (andb b1 b2).
+
+Theorem beval_iff_bevalR : forall b bv,
+  bevalR b bv <-> beval b = bv.
+Proof.
+  intros.
+  split.
+  intros.
+  induction H ; simpl.
+    try(simpl; reflexivity).
+    try(simpl; reflexivity).
+    try(apply aeval_iff_aevalR in H; apply aeval_iff_aevalR in H0; rewrite H; rewrite H0; reflexivity).
+    try(apply aeval_iff_aevalR in H; apply aeval_iff_aevalR in H0; rewrite H; rewrite H0; reflexivity).
+    try(rewrite IHbevalR; reflexivity).
+    try(rewrite IHbevalR1; rewrite IHbevalR2; reflexivity).
+  intros.
+  generalize dependent bv.
+  induction b; simpl ; intros; rewrite <- H.
+    try (apply E_BTrue).
+    try (apply E_BFalse).
+    try (apply E_BEq; apply aeval_iff_aevalR; reflexivity).
+    try (apply E_BLe; apply aeval_iff_aevalR; reflexivity).
+    try (apply E_BNot; apply IHb; reflexivity).
+    apply E_BAnd. apply IHb1. reflexivity. apply IHb2. reflexivity.
+Qed.
 (* FILL IN HERE *)
-*)
 (** [] *)
 End AExp.
 
@@ -916,7 +967,7 @@ End aevalR_extended.
     actually in [SfLib], but we want to repeat them here so that we
     can explain them.) *)
 
-Module Id. 
+Module Id.
 
 (** We define a new inductive datatype [Id] so that we won't confuse
     identifiers and numbers.  We use [sumbool] to define a computable
@@ -934,30 +985,34 @@ Proof.
      left. rewrite Heq. reflexivity.
    Case "n1 <> n2".
      right. intros contra. inversion contra. apply Hneq. apply H0.
-Defined. 
+Defined.
 
 
 (** The following lemmas will be useful for rewriting terms involving [eq_id_dec]. *)
 
-Lemma eq_id : forall (T:Type) x (p q:T), 
-              (if eq_id_dec x x then p else q) = p. 
+Lemma eq_id : forall (T:Type) x (p q:T),
+              (if eq_id_dec x x then p else q) = p.
 Proof.
-  intros. 
-  destruct (eq_id_dec x x). 
-  Case "x = x". 
+  intros.
+  destruct (eq_id_dec x x).
+  Case "x = x".
     reflexivity.
-  Case "x <> x (impossible)". 
+  Case "x <> x (impossible)".
     apply ex_falso_quodlibet; apply n; reflexivity. Qed.
 
 (** **** Exercise: 1 star, optional (neq_id)  *)
-Lemma neq_id : forall (T:Type) x y (p q:T), x <> y -> 
-               (if eq_id_dec x y then p else q) = q. 
+Lemma neq_id : forall (T:Type) x y (p q:T), x <> y ->
+               (if eq_id_dec x y then p else q) = q.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  destruct (eq_id_dec x y).
+  elimtype False. apply H. apply e.
+  reflexivity.
+Qed.
 (** [] *)
 
 
-End Id. 
+End Id.
 
 (* ####################################################### *)
 (** ** States *)
@@ -966,12 +1021,12 @@ End Id.
     some point in the execution of a program. *)
 (** For simplicity (to avoid dealing with partial functions), we
     let the state be defined for _all_ variables, even though any
-    given program is only going to mention a finite number of them. 
+    given program is only going to mention a finite number of them.
     The state captures all of the information stored in memory.  For Imp
     programs, because each variable stores only a natural number, we
-    can represent the state as a mapping from identifiers to [nat].  
-    For more complex programming languages, the state might have more 
-    structure.  
+    can represent the state as a mapping from identifiers to [nat].
+    For more complex programming languages, the state might have more
+    structure.
 *)
 
 Definition state := id -> nat.
@@ -989,15 +1044,18 @@ Definition update (st : state) (x : id) (n : nat) : state :=
 Theorem update_eq : forall n x st,
   (update st x n) x = n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold update. destruct (eq_id_dec x x) eqn: HH. reflexivity. apply ex_falso_quodlibet. apply n0. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (update_neq)  *)
 Theorem update_neq : forall x2 x1 n st,
-  x2 <> x1 ->                        
+  x2 <> x1 ->
   (update st x2 n) x1 = (st x1).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold update. destruct (eq_id_dec x2 x1). elimtype False. apply H. rewrite e. reflexivity.
+  reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (update_example)  *)
@@ -1007,14 +1065,16 @@ Proof.
 Theorem update_example : forall (n:nat),
   (update empty_state (Id 2) n) (Id 3) = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold update. simpl. unfold empty_state. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star (update_shadow)  *)
 Theorem update_shadow : forall n1 n2 x1 x2 (st : state),
    (update  (update st x2 n1) x2 n2) x1 = (update st x2 n2) x1.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold update. destruct (eq_id_dec x2 x1). reflexivity. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars (update_same)  *)
@@ -1022,15 +1082,19 @@ Theorem update_same : forall n1 x1 x2 (st : state),
   st x1 = n1 ->
   (update st x1 n1) x2 = st x2.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold update. destruct (eq_id_dec x1 x2). rewrite <- e. rewrite H. reflexivity.
+  reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars (update_permute)  *)
 Theorem update_permute : forall n1 n2 x1 x2 x3 st,
-  x2 <> x1 -> 
+  x2 <> x1 ->
   (update (update st x2 n1) x1 n2) x3 = (update (update st x1 n2) x2 n1) x3.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.  unfold update. destruct (eq_id_dec x2 x3). destruct (eq_id_dec x1 x3). elimtype False. apply H. rewrite e. rewrite e0. reflexivity. reflexivity.
+  destruct (eq_id_dec x1 x3). reflexivity. reflexivity.
+Qed.
 (** [] *)
 
 (* ################################################### *)
@@ -1132,7 +1196,7 @@ Proof. reflexivity. Qed.
          | c ;; c
          | WHILE b DO c END
          | IFB b THEN c ELSE c FI
-]] 
+]]
 *)
 (**
     For example, here's the factorial function in Imp.
@@ -1308,7 +1372,7 @@ Fixpoint ceval_fun_no_while (st : state) (c : com) : state :=
     pronounced "[c] takes state [st] to [st']".
 
 *)
-(** *** Operational Semantics 
+(** *** Operational Semantics
                            ----------------                            (E_Skip)
                            SKIP / st || st
 
