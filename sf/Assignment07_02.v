@@ -26,6 +26,7 @@ Fixpoint optimize_1mult (a:aexp) : aexp :=
 Theorem optimize_1mult_sound: forall a,
   aeval (optimize_1mult a) = aeval a.
 Proof.
-  admit.
+  intros a. induction a; simpl; try(rewrite IHa1); try (rewrite IHa2); try reflexivity.
+  destruct a1; try(destruct a2); try(destruct n); try(destruct n); simpl; simpl in IHa1; simpl in IHa2; try(destruct n0); try (rewrite IHa1); try (rewrite IHa2); try(destruct n0); simpl; try omega.
 Qed.
 

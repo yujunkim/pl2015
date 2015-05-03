@@ -1,9 +1,9 @@
 
 Require Export SfLib.
 
-(* Important: 
+(* Important:
    - You are NOT allowed to use the [admit] tactic
-     because [admit] simply admits any goal 
+     because [admit] simply admits any goal
      regardless of whether it is provable or not.
 
      But, you can leave [admit] for problems that you cannot prove.
