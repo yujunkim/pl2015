@@ -7,7 +7,13 @@ Require Export Assignment08_04.
     same as pushing the value of the expression on the stack. *)
 
 Fixpoint s_compile (e : aexp) : list sinstr :=
-  FILL_IN_HERE.
+  match e with
+  | ANum n => [SPush n]
+  | AId x => [SLoad x]
+  | APlus a1 a2 =>  (s_compile a1) ++ (s_compile a2) ++ [SPlus]
+  | AMinus a1 a2 => (s_compile a1) ++ (s_compile a2) ++ [SMinus]
+  | AMult a1 a2 => (s_compile a1) ++ (s_compile a2) ++ [SMult]
+  end.
 
 (** After you've defined [s_compile], prove the following to test
     that it works. *)
@@ -16,7 +22,7 @@ Example s_compile1 :
     s_compile (AMinus (AId X) (AMult (ANum 2) (AId Y)))
   = [SLoad X; SPush 2; SLoad Y; SMult; SMinus].
 Proof.
-  exact FILL_IN_HERE.
+  simpl. reflexivity.
 Qed.
 
 (** **** Exercise: 3 stars, advanced (stack_compiler_correct)  *)
@@ -36,7 +42,11 @@ Qed.
 Theorem s_compile_correct : forall (st : state) (e : aexp),
   s_execute st [] (s_compile e) = [ aeval st e ].
 Proof.
-  exact FILL_IN_HERE.
+  assert(H: forall (e : aexp) (st : state) (l : list nat) (rest : list sinstr),
+    s_execute st l (s_compile e ++ rest) = s_execute st ((aeval st e) :: l) rest).
+  - induction e; simpl; try reflexivity; intros;
+    try( repeat (rewrite app_assoc_reverse with (n:=rest)); rewrite IHe1; rewrite IHe2; reflexivity).
+  - induction e; simpl; try reflexivity; try( intros; repeat (rewrite H); reflexivity).
 Qed.
 
 (*-- Check --*)
