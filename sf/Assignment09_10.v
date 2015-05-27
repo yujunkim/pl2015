@@ -50,7 +50,7 @@ Require Export Assignment09_09.
 *)
 
 Theorem add_three_numbers_correct: forall a b c,
-  {{ fun st => True }}                                   
+  {{ fun st => True }}
   X ::= ANum 0;;
   Y ::= ANum 0;;
   Z ::= ANum c;;
@@ -64,12 +64,56 @@ Theorem add_three_numbers_correct: forall a b c,
   END
   {{ fun st => st Z = a + b + c }}.
 Proof.
-  exact FILL_IN_HERE.
+  intros.
+  eapply hoare_seq with (fun st: state => st X = 0).
+  eapply hoare_seq with (fun st: state => st X = 0 /\st Y = 0).
+  eapply hoare_seq with (fun st: state => st Z = (st X + c) /\ st Y = 0).
+  eapply hoare_seq with (fun st: state => st Z = (a + st Y + c)).
+
+  eapply hoare_consequence_post.
+  apply hoare_while.
+  eapply hoare_seq. apply hoare_asgn.
+  eapply hoare_consequence_pre. apply hoare_asgn.
+
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. apply negb_true in H1. apply beq_nat_false in H1. rewrite H0. omega.
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. apply negb_false in H1. apply beq_nat_true in H1. rewrite H0. omega.
+
+
+  eapply hoare_consequence_post.
+  apply hoare_while.
+  eapply hoare_seq. apply hoare_asgn.
+  eapply hoare_consequence_pre. apply hoare_asgn.
+
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. apply negb_true in H1. apply beq_nat_false in H1. split. inversion H0. rewrite H2. omega. inversion H0. apply H3.
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. apply negb_false in H1. apply beq_nat_true in H1. inversion H0. rewrite H2. omega.
+
+
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. split. omega. omega.
+
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. inversion H. split. omega. omega.
+
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+
+  unfold beval, assn_sub, update, assert_implies. simpl.
+  intros. omega.
 Qed.
 
 (*-- Check --*)
 Check add_three_numbers_correct: forall a b c,
-  {{ fun st => True }}                                   
+  {{ fun st => True }}
   X ::= ANum 0;;
   Y ::= ANum 0;;
   Z ::= ANum c;;

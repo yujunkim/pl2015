@@ -4,16 +4,16 @@ Require Export Assignment09_00.
 
 (** **** Exercise: 2 stars (hoare_asgn_examples)  *)
 
-Theorem assn_sub_ex1: 
+Theorem assn_sub_ex1:
   {{ (fun st => st X <= 5) [X |-> APlus (AId X) (ANum 1)] }}
       X ::= APlus (AId X) (ANum 1)
   {{ fun st => st X <= 5 }}.
 Proof.
-  exact FILL_IN_HERE.
+  apply hoare_asgn.
 Qed.
 
 (*-- Check --*)
-Check assn_sub_ex1: 
+Check assn_sub_ex1:
   {{ (fun st => st X <= 5) [X |-> APlus (AId X) (ANum 1)] }}
       X ::= APlus (AId X) (ANum 1)
   {{ fun st => st X <= 5 }}.

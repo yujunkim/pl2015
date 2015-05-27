@@ -13,7 +13,7 @@ Require Export Assignment09_05.
       X ::= X - 1;;
       Y ::= Y + 1
     END
-      {{ Y = m }} 
+      {{ Y = m }}
     Write an informal decorated program showing that this is correct. *)
 
 Theorem slow_assignment : forall m,
@@ -25,7 +25,26 @@ Theorem slow_assignment : forall m,
     END
     {{ fun st => st Y = m }}.
 Proof.
-  exact FILL_IN_HERE.
+  intros.
+  apply hoare_seq with (fun st: state => (st Y + st X = m)).
+
+
+  eapply hoare_consequence_post.
+  eapply hoare_while.
+  eapply hoare_seq.
+  apply hoare_asgn.
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+  unfold beval, assn_sub, update, assert_implies.
+  simpl.
+  intros st [H1 H2]. apply negb_true in H2. apply beq_nat_false in H2. omega.
+
+  unfold beval, assn_sub, update, assert_implies.
+  intros. inversion H. apply negb_false in H1. apply beq_nat_true in H1. simpl in H1. omega.
+
+  eapply hoare_consequence_pre. apply hoare_asgn.
+  unfold assn_sub.
+  simpl. unfold update. simpl. unfold assert_implies. intros. apply H.
 Qed.
 
 (*-- Check --*)
@@ -37,4 +56,4 @@ Check slow_assignment : forall m,
       Y ::= APlus (AId Y) (ANum 1)
     END
     {{ fun st => st Y = m }}.
-  
+

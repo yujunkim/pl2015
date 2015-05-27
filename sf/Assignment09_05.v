@@ -11,9 +11,15 @@ Theorem if_minus_plus :
     THEN (Z ::= AMinus (AId Y) (AId X))
     ELSE (Y ::= APlus (AId X) (AId Z))
   FI
-  {{fun st => st Y = st X + st Z}}. 
+  {{fun st => st Y = st X + st Z}}.
 Proof.
-  exact FILL_IN_HERE.
+  eapply hoare_consequence_pre.
+  eapply hoare_if.
+  apply hoare_asgn.
+  apply hoare_asgn.
+  unfold beval, assn_sub, update, assert_implies.
+  simpl. intros. split. intros. apply ble_nat_true in H0. apply le_plus_minus. apply H0.
+  intros. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -23,5 +29,5 @@ Check if_minus_plus :
     THEN (Z ::= AMinus (AId Y) (AId X))
     ELSE (Y ::= APlus (AId X) (AId Z))
   FI
-  {{fun st => st Y = st X + st Z}}. 
+  {{fun st => st Y = st X + st Z}}.
 
