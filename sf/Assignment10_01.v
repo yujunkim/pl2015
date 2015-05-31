@@ -8,33 +8,33 @@ Require Export Assignment10_00.
     then [P (C n) t2] steps to [P (C n)
     t2']: *)
 
-Example test_step_2 : 
-      P 
+Example test_step_2 :
+      P
         (C 0)
-        (P 
-          (C 2) 
+        (P
+          (C 2)
           (P (C 0) (C 3)))
       ==>
-      P 
+      P
         (C 0)
-        (P 
-          (C 2) 
+        (P
+          (C 2)
           (C (0 + 3))).
-Proof. 
-  exact FILL_IN_HERE.
+Proof.
+  simpl. try( apply ST_Plus2); try(apply ST_Plus2) ; try(apply ST_PlusConstConst); apply v_const.
 Qed.
 
 (*-- Check --*)
-Check test_step_2 : 
-      P 
+Check test_step_2 :
+      P
         (C 0)
-        (P 
-          (C 2) 
+        (P
+          (C 2)
           (P (C 0) (C 3)))
       ==>
-      P 
+      P
         (C 0)
-        (P 
-          (C 2) 
+        (P
+          (C 2)
           (C (0 + 3))).
 

@@ -14,7 +14,12 @@ Lemma test_multistep_4:
         (C 0)
         (C (2 + (0 + 3))).
 Proof.
-  exact FILL_IN_HERE.
+  apply multi_trans with (P (C 0) (P (C 2) (C (0 + 3)))).
+  apply multi_R.
+  try( apply ST_Plus1); try(apply ST_Plus2) ; try(apply ST_PlusConstConst); try(apply v_const).
+  try( apply ST_Plus1); try(apply ST_Plus2) ; try(apply ST_PlusConstConst); try(apply v_const).
+  apply multi_R.
+  try( apply ST_Plus1); try(apply ST_Plus2) ; try(apply ST_PlusConstConst); try(apply v_const).
 Qed.
 
 (*-- Check --*)

@@ -2,7 +2,7 @@ Require Export Assignment10_01.
 
 (* problem #02: 10 points *)
 
-(** As a sanity check on this change, let's re-verify determinism 
+(** As a sanity check on this change, let's re-verify determinism
 
     Proof sketch: We must show that if [x] steps to both [y1] and [y2]
     then [y1] and [y2] are equal.  Consider the final rules used in
@@ -30,7 +30,26 @@ Require Export Assignment10_01.
 
 Theorem step_deterministic_alt: deterministic step.
 Proof.
-  exact FILL_IN_HERE.
+  unfold deterministic. intros x y1 y2 Hy1 Hy2.
+  generalize dependent y2.
+  step_cases (induction Hy1) Case; intros y2 Hy2.
+    Case "ST_PlusConstConst". step_cases (inversion Hy2) SCase.
+      SCase "ST_PlusConstConst". reflexivity.
+      SCase "ST_Plus1". inversion H2.
+      SCase "ST_Plus2". subst. inversion H3.
+    Case "ST_Plus1". step_cases (inversion Hy2) SCase.
+      SCase "ST_PlusConstConst". rewrite <-  H0 in Hy1. inversion Hy1.
+      SCase "ST_Plus1".
+        rewrite <- (IHHy1 t1'0).
+        reflexivity. assumption.
+      SCase "ST_Plus2". inversion H1. subst. inversion Hy1.
+
+    Case "ST_Plus2". step_cases (inversion Hy2) SCase.
+      SCase "ST_PlusConstConst". rewrite <- H2 in Hy1. inversion Hy1.
+      SCase "ST_Plus1". subst. inversion H. subst. inversion H3.
+      SCase "ST_Plus2".
+        rewrite <- (IHHy1 t2'0).
+        reflexivity. assumption.
 Qed.
 
 (*-- Check --*)
