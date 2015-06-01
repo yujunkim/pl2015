@@ -5,13 +5,13 @@ Require Export Assignment11_03.
 (** **** Exercise: 1 star, optional (succ_hastype_nat__hastype_nat)  *)
 Example succ_hastype_nat__hastype_nat : forall t,
   |- tsucc t \in TNat ->
-  |- t \in TNat.  
+  |- t \in TNat.
 Proof.
-  exact FILL_IN_HERE.
+  intros. inversion H. apply H1.
 Qed.
 
 (*-- Check --*)
 Check succ_hastype_nat__hastype_nat : forall t,
   |- tsucc t \in TNat ->
-  |- t \in TNat.  
+  |- t \in TNat.
 

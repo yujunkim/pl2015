@@ -14,9 +14,9 @@ Theorem preservation : forall t t' T,
 Proof with auto.
   intros t t' T HT HE.
   generalize dependent t'.
-  has_type_cases (induction HT) Case; 
+  has_type_cases (induction HT) Case;
          (* every case needs to introduce a couple of things *)
-         intros t' HE; 
+         intros t' HE;
          (* and we can deal with several impossible
             cases all at once *)
          try (solve by inversion).
@@ -25,11 +25,13 @@ Proof with auto.
     SCase "ST_IfFalse". assumption.
     SCase "ST_If". apply T_If; try assumption.
       apply IHHT1; assumption.
-      exact FILL_IN_HERE.
+  Case "T_Succ".
+    inversion HE...
   Case "T_Pred".
-    exact FILL_IN_HERE.
+    inversion HE; subst; clear HE...
+    apply T_Pred in HT. inversion HT. subst. inversion H1...
   Case "T_Iszero".
-    exact FILL_IN_HERE.
+    inversion HE...
 Qed.
 
 (*-- Check --*)

@@ -6,14 +6,15 @@ Require Export Assignment11_07.
 (** For comparison, prove it using [apply] instead of [eapply]. *)
 
 Theorem normalize_ex' : exists e',
-  (AMult (ANum 3) (AMult (ANum 2) (ANum 1))) / empty_state 
+  (AMult (ANum 3) (AMult (ANum 2) (ANum 1))) / empty_state
   ==>a* e'.
 Proof.
-  exact FILL_IN_HERE.
+  eapply ex_intro.
+  normalize.
 Qed.
 
 (*-- Check --*)
 Check normalize_ex' : exists e',
-  (AMult (ANum 3) (AMult (ANum 2) (ANum 1))) / empty_state 
+  (AMult (ANum 3) (AMult (ANum 2) (ANum 1))) / empty_state
   ==>a* e'.
 

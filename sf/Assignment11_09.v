@@ -11,17 +11,20 @@ Require Export Assignment11_08.
     counter-example in Coq, but feel free to do so if you like.)
 *)
 
-Theorem subject_expansion_false: 
+Theorem subject_expansion_false:
   exists t t' T,
     t ==> t' /\
     |- t' \in T /\
     ~ |- t \in T.
 Proof.
-  exact FILL_IN_HERE.
+  exists (tif ttrue tzero ttrue). exists tzero. exists TNat.
+  split. eauto.
+  split. eauto.
+  intros not. inversion not. subst. inversion H5.
 Qed.
 
 (*-- Check --*)
-Check subject_expansion_false: 
+Check subject_expansion_false:
   exists t t' T,
     t ==> t' /\
     |- t' \in T /\
