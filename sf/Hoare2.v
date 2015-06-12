@@ -34,7 +34,7 @@ Require Export Hoare.
         {{ Z - X = p - m }}
     END;
       {{ Z - X = p - m /\ ~ (X <> 0) }} ->>
-      {{ Z = p - m }} 
+      {{ Z = p - m }}
 *)
 
 (** Concretely, a decorated program consists of the program text
@@ -472,7 +472,7 @@ Proof.
 
     This failure is not very surprising: the variable [Y] changes
     during the loop, while [m] and [n] are constant, so the assertion
-    we chose didn't have much chance of being an invariant!  
+    we chose didn't have much chance of being an invariant!
 
     To do better, we need to generalize (8) to some statement that is
     equivalent to (8) when [X] is [0], since this will be the case
@@ -621,7 +621,16 @@ Theorem parity_correct : forall m,
   END
     {{ fun st => st X = parity m }}.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  apply hoare_consequence_pre with (fun st => parity (st X) = parity m).
+  eapply hoare_consequence_post.
+  apply hoare_while.
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. simpl. destruct H. inversion H. destruct (st X). inversion H0. simpl. destruct n. inversion H0. simpl. rewrite <- minus_n_O. reflexivity.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. simpl. destruct H. inversion H. destruct (st X). simpl. reflexivity. destruct n. simpl. reflexivity. SearchAbout [true not]. apply not_true_iff_false in H0. inversion H0.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. rewrite H. reflexivity.
+  Qed.
 (** [] *)
 
 (* ####################################################### *)
@@ -663,7 +672,7 @@ Proof.
     Also, looking at the second conjunct of (8), it seems quite
     hopeless as an invariant -- and we don't even need it, since we
     can obtain it from the negation of the guard (third conjunct
-    in (7)), again under the assumption that [X=m].  
+    in (7)), again under the assumption that [X=m].
 
     So we now try [X=m /\ Z*Z <= m] as the loop invariant:
       {{ X=m }}  ->>                                      (a - OK)
@@ -757,6 +766,34 @@ Proof.
     to replace auxiliary variabes (parameters) with variables -- or
     with expressions involving both variables and parameters (like
     [m - Y]) -- when going from postconditions to invariants. *)
+Theorem squaring : forall m,
+    {{ fun st => st X = m }}
+    Y ::= (ANum 0);;
+    Z ::= (ANum 0);;
+    WHILE  BNot (BEq (AId Y) (AId X))  DO
+      Z ::= APlus (AId Z) (AId X);;
+      Y ::= APlus (AId Y) (ANum 1)
+    END
+    {{ fun st =>  (st Z) = m*m }}.
+Proof.
+  intros.
+  eapply hoare_seq.
+  apply hoare_seq with (fun st => (st Z) = (st Y) * m /\ (st X) = m).
+  eapply hoare_consequence_post.
+  apply hoare_while.
+  eapply hoare_consequence_pre.
+  eapply hoare_seq.
+  apply hoare_asgn.
+  apply hoare_asgn.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. destruct H. destruct H. split.
+  SearchAbout [negb true]. apply negb_true_iff in H0. SearchAbout [beq_nat false]. apply beq_nat_false_iff in H0. rewrite H. rewrite H1. SearchAbout [mult]. rewrite mult_plus_distr_r. omega. apply H1.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. destruct H. destruct H.
+  SearchAbout [negb true]. apply eq_true_negb_classical in H0. SearchAbout [beq_nat false]. apply beq_nat_true_iff in H0. subst. rewrite H0 in H. apply H.
+  apply hoare_asgn.
+  eapply hoare_consequence_pre.
+  eapply hoare_asgn.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. split. reflexivity. apply H.
+Qed.
 
 (* ####################################################### *)
 (** ** Exercise: Factorial *)
@@ -766,7 +803,7 @@ Proof.
     1*2*...*n]).  Here is an Imp program that calculates the factorial
     of the number initially stored in the variable [X] and puts it in
     the variable [Y]:
-    {{ X = m }} 
+    {{ X = m }}
   Y ::= 1 ;;
   WHILE X <> 0
   DO
@@ -903,6 +940,42 @@ Proof.
   END
     Write a decorated program for this. *)
 
+Theorem power_series : forall m,
+    {{ fun st => True }}
+    X ::= (ANum 0);;
+    Y ::= (ANum 1);;
+    Z ::= (ANum 1);;
+    WHILE  BNot (BEq (AId X) (ANum m))  DO
+      Z ::= AMult (AId Z) (ANum 2);;
+      Y ::= APlus (AId Y) (AId Z);;
+      X ::= APlus (AId X) (ANum 1)
+    END
+    {{ fun st =>  (st Y) = (2 * (st Z)) - 1}}.
+Proof.
+  intros.
+  eapply hoare_seq.
+  eapply hoare_seq.
+  apply hoare_seq with (fun st => (st Y) = (2 * (st Z)) - 1).
+  eapply hoare_consequence_post.
+  apply hoare_while.
+  eapply hoare_seq.
+  eapply hoare_seq.
+  apply hoare_asgn.
+  apply hoare_asgn.
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. destruct H.
+  SearchAbout [negb true]. apply negb_true_iff in H0. SearchAbout [beq_nat false]. apply beq_nat_false_iff in H0. rewrite H. omega.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. destruct H.
+  SearchAbout [negb true]. apply eq_true_negb_classical in H0. SearchAbout [beq_nat false]. apply beq_nat_true_iff in H0. subst. apply H.
+
+  apply hoare_asgn.
+  apply hoare_asgn.
+  eapply hoare_consequence_pre.
+  apply hoare_asgn.
+  unfold assert_implies, assn_sub, update, bassn . simpl.  intros. reflexivity.
+Qed.
+
 (* FILL IN HERE *)
 
 (* ####################################################### *)
@@ -976,7 +1049,13 @@ Theorem is_wp_example :
   is_wp (fun st => st Y <= 4)
     (X ::= APlus (AId Y) (ANum 1)) (fun st => st X <= 5).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. unfold is_wp. split. eapply hoare_consequence_pre. apply hoare_asgn.
+  unfold assert_implies, update, assn_sub, update. intros. simpl. SearchAbout "<=". apply plus_le_compat_r with (p:=1) in H. apply H.
+  intros P' ht st P'_holds. unfold hoare_triple in ht.
+  remember (update st X (st Y + 1)) as st'.
+  assert ((X ::= APlus (AId Y) (ANum 1)) / st || st') as E. subst st'. apply E_Ass. reflexivity.
+  apply ht in E; try assumption. rewrite Heqst' in E. unfold update in E. simpl in E.  omega.
+(* FILL IN HERE *) Admitted.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (hoare_asgn_weakest)  *)
@@ -986,6 +1065,13 @@ Proof.
 Theorem hoare_asgn_weakest : forall Q X a,
   is_wp (Q [X |-> a]) (X ::= a) Q.
 Proof.
+  unfold is_wp.
+  intros. split. apply hoare_asgn.
+  intros. unfold hoare_triple in H. intros st h.
+  remember (update st X (aeval st a)) as st'.
+  assert ((X ::= a) / st || st') as HH.
+  rewrite Heqst'. apply E_Ass. reflexivity.
+  apply H in HH. subst st'. apply HH. apply h.
 (* FILL IN HERE *) Admitted.
 (** [] *)
 
@@ -1375,7 +1461,7 @@ Proof. intros m p. verify. (* this grinds for a bit! *) Qed.
 (** In the [slow_assignment] exercise above, we saw a roundabout way
     of assigning a number currently stored in [X] to the variable [Y]:
     start [Y] at [0], then decrement [X] until it hits [0],
-    incrementing [Y] at each step. 
+    incrementing [Y] at each step.
 
     Write a _formal_ version of this decorated program and prove it
     correct. *)
@@ -1398,7 +1484,7 @@ Fixpoint real_fact (n:nat) : nat :=
   end.
 
 (** Following the pattern of [subtract_slowly_dec], write a decorated
-    program [factorial_dec] that implements the factorial function and 
+    program [factorial_dec] that implements the factorial function and
     prove it correct as [factorial_dec_correct]. *)
 
 (* FILL IN HERE *)
