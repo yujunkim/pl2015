@@ -14,28 +14,14 @@ Require Export Assignment10_13.
      destruct ... as [[? ?] | [? ?]].
 *)
 
+Hint Constructors aval.
+Hint Constructors astep.
 Theorem aexp_strong_progress: forall st a,
   (exists n, a = ANum n) \/
   exists a', a / st ==>a a'.
 Proof.
-  intros. induction a. left. eauto. right. eauto. right.
-
-  inversion IHa1. inversion H. rewrite H0.
-  inversion IHa2. inversion H1. rewrite H2. exists (ANum (x + x0)). eauto. inversion H1. inversion H2; eauto.
-
-  inversion H. inversion H0; eauto.
-  right.
-
-  inversion IHa1. inversion H. rewrite H0.
-  inversion IHa2. inversion H1. rewrite H2. exists (ANum (x - x0)). eauto. inversion H1. inversion H2; eauto.
-
-  inversion H. inversion H0; eauto.
-
-  right.
-  inversion IHa1. inversion H. rewrite H0.
-  inversion IHa2. inversion H1. rewrite H2. exists (ANum (x * x0)). eauto. inversion H1. inversion H2; eauto.
-
-  inversion H. inversion H0; eauto.
+  induction a; eauto;
+  try (inversion IHa1; inversion IHa2; try inversion H; try inversion H0; try rewrite H1; try rewrite H2; eauto).
 Qed.
 
 (*-- Check --*)

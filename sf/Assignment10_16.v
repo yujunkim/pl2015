@@ -31,7 +31,7 @@ Proof.
   right.
   remember bexp_strong_progress.
   inversion IHc1. inversion IHc2. rewrite H. rewrite H0.
-  generalize (o st b). intros. inversion H1. inversion H2. inversion H3. eauto. inversion H3. eauto. inversion H2. eauto.
+  generalize (o st b). intros. inversion H1. inversion H2; inversion H3; eauto. inversion H2. eauto.
 
   generalize (o st b). intros. inversion H1. inversion H2. inversion H3. eauto. inversion H3. eauto. inversion H2. eauto.
 
